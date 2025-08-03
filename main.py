@@ -1,48 +1,84 @@
-import os
-from mistralai import Mistral, UserMessage
-from dotenv import load_dotenv
+from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi.security import OAuth2PasswordRequestForm
+from typing import Annotated
 
-load_dotenv()
+# Importaciones locales
+import app.database
+import app.llm_services
+import app.auth
 
-def llamar_a_mistral(prompt_del_usuario: str):
-    try:
-        api_key = os.environ.get("MISTRAL_API_KEY")
-        if not api_key:
-            return "Error: La MISTRAL_API_KEY no fue encontrada."
+app = FastAPI(title="API de Aprendizaje con Login")
 
-        client = Mistral(api_key=api_key)
-        
-        messages = [
-            {"role": "user", "content": prompt_del_usuario}
-        ]
+# --- ENDPOINTS DE AUTENTICACIÓN ---
 
-        respuesta = client.chat.complete(
-            model="mistral-small-latest",
-            messages=messages
-        )
-        
-        return respuesta.choices[0].message.content
-
-    except Exception as e:
-        return f"Ha ocurrido un error: {e}"
-
-if __name__ == "__main__":
-    tema = input('Dime de que quieres aprender: ')
-    #850 - 950 palabras sera por el momento 25 a 50 palabras, para las pruebas
-    #Esto es crucial para que la narración dure unos 5 minutos, que es el objetivo del proyecto.
-    prompt = f""" Actúa como un narrador experto y carismático para un podcast educativo llamado "Spotify for Learning". Tu tarea es generar un guion de audio sobre un tema específico.
-El guion debe ser informativo, fácil de seguir y atractivo para una audiencia general.
-### REQUISITOS OBLIGATORIOS:
-1.  **Rol y Tono**: Asume el rol de un presentador de podcast entusiasta y claro. El tono debe ser conversacional, curioso y evitar jerga compleja. Imagina que se lo explicas a un amigo inteligente.
-2.  **Estructura del Contenido**: Organiza la explicación siguiendo estrictamente el formato "¿Qué es?", "¿Por qué es importante?" y "¿Cómo funciona/ocurrió?". Esta estructura es fundamental.
-3.  **Duración y Longitud**: El guion debe tener una longitud aproximada de 25-50 palabras. 
-4.  **Formato de Salida**: Proporciona únicamente el texto del guion. No incluyas títulos, encabezados como "Introducción" o "Conclusión", ni ningún comentario adicional. El texto debe estar listo para ser enviado directamente a un motor de Texto-a-Voz.
-5.  **Gancho Inicial**: Comienza siempre con una pregunta o un dato sorprendente para captar la atención del oyente desde el primer segundo.
-### TEMA DEL GUION DE HOY:
-{tema}"""
-    resultado = llamar_a_mistral(prompt)
+@app.post("/register")
+def register_user(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Endpoint para registrar un nuevo usuario."""
+    db_user = database.get_user_by_username(form_data.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya existe.")
     
-    print("Prompt enviado a Mistral:")
-    print(prompt)
-    print("\nRespuesta de Mistral:")
-    print(resultado)
+    hashed_password = auth.get_password_hash(form_data.password)
+    database.create_user(form_data.username, hashed_password)
+    
+    return {"message": f"Usuario {form_data.username} registrado con éxito."}
+
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Endpoint para iniciar sesión y obtener un token."""
+    user = database.get_user_by_username(form_data.username)
+    if not user or not auth.verify_password(form_data.password, user[1]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nombre de usuario o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = auth.create_access_token(data={"sub": user[0]})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+# --- ENDPOINT PROTEGIDO ---
+
+# Función "guardián" que verifica el token y nos da el usuario actual
+async def get_current_user(authorization: Annotated[str, Header()]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        # Extraemos el token del header "Bearer <token>"
+        token = authorization.split(" ")[1]
+        payload = auth.jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except (auth.JWTError, IndexError):
+        raise credentials_exception
+    
+    user = database.get_user_by_username(username)
+    if user is None:
+        raise credentials_exception
+    return user[0] # Devolvemos solo el nombre de usuario
+
+
+@app.post("/learn/")
+def learn_topic(tema: str, current_user: Annotated[str, Depends(get_current_user)]):
+    """
+    Endpoint principal protegido. Solo funciona si se envía un token válido.
+    """
+    # 'current_user' ya contiene el nombre de usuario verificado del token.
+    username = current_user
+    
+    # El resto de la lógica es la misma, pero usando 'username'
+    resumen = llm_services.generar_resumen(tema)
+    database.add_topic_to_history(username, tema)
+    historial_actualizado = database.get_user_history(username)
+    sugerencias = llm_services.sugerir_temas_relacionados(tema, historial_actualizado)
+    
+    return {
+        "usuario": username,
+        "tema_aprendido": tema,
+        "resumen": resumen,
+        "sugerencias_para_ti": sugerencias
+    }
