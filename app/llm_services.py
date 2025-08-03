@@ -1,8 +1,11 @@
 import os
 import json
 from mistralai import Mistral
+import re
+from dotenv import load_dotenv
+from app import database
 
-import app.database 
+load_dotenv()
 
 def consultar_llm(prompt: str):
     """
@@ -29,16 +32,9 @@ def consultar_llm(prompt: str):
         return None
 
 def recuperar_conocimiento(tema: str) -> str | None:
-    """
-    Paso de "Recuperación" (Retrieval) de RAG.
-    Busca en la base de datos un artículo sobre el tema.
-    """
-    # Convierte un tema como "Agujeros Negros" en una clave como "agujeros_negros"
+    """Paso de 'Recuperación' de RAG desde la base de datos."""
     topic_key = tema.lower().replace(" ", "_")
-    
-    # Llama a la función que hemos creado en database.py
     contenido = database.get_knowledge_by_topic(topic_key)
-    
     if contenido:
         print(f"✅ Conocimiento encontrado para '{tema}' en la base de datos.")
         return contenido
@@ -47,28 +43,18 @@ def recuperar_conocimiento(tema: str) -> str | None:
         return None
 
 def generar_resumen(tema: str):
-    """
-    Paso de "Generación" (Generation) de RAG.
-    Genera un resumen usando el conocimiento recuperado si existe.
-    """
+    """Paso de 'Generación' de RAG."""
     conocimiento_recuperado = recuperar_conocimiento(tema)
-    
     if conocimiento_recuperado:
-        # --- Prompt Aumentado con RAG ---
-        # Si encontramos información en nuestra DB, le pedimos al LLM que la resuma.
         prompt = f"""
         Actúa como un experto que resume textos de forma clara y concisa para un podcast.
         Basándote ÚNICAMENTE en el siguiente texto, genera un resumen de 25-50 palabras.
         No uses ninguna información externa.
-
         ### TEXTO PROPORCIONADO:
         {conocimiento_recuperado}
-        
         ### RESUMEN:
         """
     else:
-        # --- Prompt Original (Fallback) ---
-        # Si no encontramos información, le pedimos al LLM que use su memoria.
         prompt = f"""
         Actúa como un narrador experto de podcasts. Tu tarea es generar un guion corto y atractivo.
         REQUISITOS:
@@ -78,30 +64,36 @@ def generar_resumen(tema: str):
         4. Formato: Solo el texto del guion, sin títulos.
         TEMA: {tema}
         """
-        
     return consultar_llm(prompt)
 
 def sugerir_temas_relacionados(tema_actual: str, historial_temas: list):
     """
-    Genera sugerencias personalizadas usando el historial del usuario (un tipo de RAG).
+    Función de sugerencias MEJORADA para extraer el JSON de forma segura.
     """
     historial_str = ", ".join(historial_temas)
     prompt_sugerencias = f"""
-    Actúa como un curador de contenido experto para una plataforma de aprendizaje.
+    Actúa como un curador de contenido experto.
     Un usuario acaba de aprender sobre: "{tema_actual}".
     Su historial de temas es: {historial_str}.
-
-    Sugiere 5 nuevos temas relacionados que podrían despertar su curiosidad.
+    Sugiere 5 nuevos temas relacionados.
     Devuelve tu respuesta únicamente como una lista en formato JSON.
     Formato estricto: ["Tema 1", "Tema 2", "Tema 3", "Tema 4", "Tema 5"]
     """
     respuesta_str = consultar_llm(prompt_sugerencias)
     
-    try:
-        # Asegurarnos de que la respuesta no sea None antes de intentar cargar el JSON
-        if respuesta_str:
-            return json.loads(respuesta_str)
+    if not respuesta_str:
         return []
-    except (json.JSONDecodeError, TypeError):
-        print("La respuesta del LLM para las sugerencias no es un JSON válido.")
+
+    # Búsqueda robusta del JSON en la respuesta con expresiones regulares
+    match = re.search(r'\[.*\]', respuesta_str, re.DOTALL)
+    if not match:
+        print("No se encontró una lista JSON en la respuesta del LLM.")
+        return []
+        
+    json_encontrado = match.group(0)
+    
+    try:
+        return json.loads(json_encontrado)
+    except json.JSONDecodeError:
+        print("La cadena extraída no es un JSON válido.")
         return []
