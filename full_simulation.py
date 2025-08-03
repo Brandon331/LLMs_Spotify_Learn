@@ -4,7 +4,7 @@ from app import database, llm_services
 def simular_flujo_completo():
     # Usamos un nombre de usuario en lugar de un ID
     USUARIO_SIMULADO = "brandon_ejemplo"
-    TEMAS_A_APRENDER = ["Galletas"]
+    TEMAS_A_APRENDER = ["Pajaros"]
 
     print(f"🚀 INICIANDO SIMULACIÓN PARA EL USUARIO: {USUARIO_SIMULADO}")
 
