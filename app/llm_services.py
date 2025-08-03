@@ -1,8 +1,10 @@
 import os
 import json
 from mistralai import Mistral
-
-import app.database 
+import re
+from dotenv import load_dotenv
+from app import database
+load_dotenv()
 
 def consultar_llm(prompt: str):
     """
@@ -82,26 +84,20 @@ def generar_resumen(tema: str):
     return consultar_llm(prompt)
 
 def sugerir_temas_relacionados(tema_actual: str, historial_temas: list):
-    """
-    Genera sugerencias personalizadas usando el historial del usuario (un tipo de RAG).
-    """
     historial_str = ", ".join(historial_temas)
     prompt_sugerencias = f"""
-    Actúa como un curador de contenido experto para una plataforma de aprendizaje.
+    Actúa como un curador de contenido experto.
     Un usuario acaba de aprender sobre: "{tema_actual}".
     Su historial de temas es: {historial_str}.
-
-    Sugiere 5 nuevos temas relacionados que podrían despertar su curiosidad.
+    Sugiere 5 nuevos temas relacionados.
     Devuelve tu respuesta únicamente como una lista en formato JSON.
     Formato estricto: ["Tema 1", "Tema 2", "Tema 3", "Tema 4", "Tema 5"]
     """
     respuesta_str = consultar_llm(prompt_sugerencias)
-    
+    if not respuesta_str: return []
+    match = re.search(r'\[.*\]', respuesta_str, re.DOTALL)
+    if not match: return []
     try:
-        # Asegurarnos de que la respuesta no sea None antes de intentar cargar el JSON
-        if respuesta_str:
-            return json.loads(respuesta_str)
-        return []
-    except (json.JSONDecodeError, TypeError):
-        print("La respuesta del LLM para las sugerencias no es un JSON válido.")
+        return json.loads(match.group(0))
+    except json.JSONDecodeError:
         return []
