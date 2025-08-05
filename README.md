@@ -76,7 +76,7 @@ Para probar la funcionalidad actual, primero clona el repositorio y muévete a l
 4.  **Instala las dependencias:**
 
     ```bash
-    pip install "mistralai" "python-dotenv"
+    pip install "mistralai" "python-dotenv" "passlib[bcrypt]" "python-jose[cryptography]" fastapi[all]
     ```
 
     *(Nota: Las dependencias de FastAPI y seguridad no son estrictamente necesarias para la simulación, pero se pueden instalar para preparar el siguiente paso).*
