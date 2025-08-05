@@ -111,9 +111,9 @@ Ahora, ejecuta el script de simulación para ver toda la lógica en acción dire
 
    ```bash
    python full_simulation.py
-   ---
+   ```
 
-### 📈 Próximos Pasos (En la rama `main`) ##
+### 📈 Próximos Pasos (En la rama `main`) 
 
 El siguiente gran objetivo es conectar toda la lógica probada a una API web.
 
