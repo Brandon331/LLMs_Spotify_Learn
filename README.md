@@ -1,135 +1,94 @@
-# 🎧 Spotify for Learning - Generador de Snippets con IA 🤖
-
+🎧 Spotify for Learning - Generador de Snippets con IA 🤖
 Este proyecto es el backend de una aplicación diseñada para transformar la manera en que aprendemos sobre la marcha. La API genera resúmenes educativos cortos y personalizados, y sugiere nuevos temas basados en los intereses del usuario, utilizando un potente modelo de lenguaje (LLM) y una arquitectura de Generación Aumentada por Recuperación (RAG).
 
----
+🌟 Estado Actual del Proyecto
+La lógica principal del backend está completa y funcional. Esto incluye:
 
-## 🏛️ Arquitectura del Backend
+Conexión a la base de datos SQLite.
 
-El backend está construido con **FastAPI** y sigue una arquitectura modular para separar responsabilidades, garantizando que el código sea limpio, mantenible y escalable.
+Generación de resúmenes y sugerencias con Mistral y RAG.
 
--   **🚀 API Framework**: **FastAPI** para crear endpoints rápidos y eficientes.
--   **🗃️ Base de Datos**: **SQLite** para almacenar información de usuarios, historial de aprendizaje y una base de conocimiento interna.
--   **🧠 Modelo de Lenguaje (LLM)**: **Mistral** para la generación de texto (resúmenes y sugerencias).
--   **🔐 Autenticación**: **Tokens JWT** para proteger los endpoints y gestionar las sesiones de usuario.
--   **📚 Generación Aumentada por Recuperación (RAG)**: Se utiliza un enfoque híbrido:
-    1.  Para los **resúmenes**, el sistema primero intenta recuperar información de una base de conocimiento interna para dar respuestas precisas y controladas. Si no encuentra información, recurre al conocimiento general del LLM.
-    2.  Para las **sugerencias**, el sistema recupera el historial de aprendizaje del usuario para generar recomendaciones verdaderamente personalizadas.
+Gestión de historial de usuarios.
 
----
+Actualmente, toda esta funcionalidad se puede probar a través de un script de simulación. El siguiente paso es exponer esta lógica a través de una API web con FastAPI.
 
-## 📂 Estructura del Proyecto
+🏛️ Arquitectura Propuesta
+El backend está construido con una arquitectura modular para separar responsabilidades, garantizando que el código sea limpio, mantenible y escalable.
 
-El backend está organizado en los siguientes módulos:
+🚀 API Framework (Próximo paso): FastAPI para crear endpoints rápidos y eficientes.
 
--   `main.py`: El archivo principal que define los endpoints de la API (`/register`, `/token`, `/learn/`).
--   `llm_services.py`: Contiene toda la lógica para interactuar con la API de Mistral.
--   `database.py`: Gestiona todas las interacciones con la base de datos SQLite.
--   `auth.py`: Maneja toda la seguridad y autenticación.
--   `create_db.py`: Script para inicializar la base de datos.
--   `seed_db.py`: Script para poblar la base de conocimiento para RAG.
--   `.env`: Archivo para guardar claves secretas (no se sube al repositorio).
+🗃️ Base de Datos: SQLite para almacenar información de usuarios, historial de aprendizaje y una base de conocimiento interna.
 
----
+🧠 Modelo de Lenguaje (LLM): Mistral para la generación de texto.
 
-## 🚀 Configuración y Puesta en Marcha
+🔐 Autenticación (Próximo paso): Tokens JWT para proteger los endpoints.
 
-Sigue estos pasos para configurar y ejecutar el backend en tu entorno local.
+📚 Generación Aumentada por Recuperación (RAG): Se utiliza un enfoque híbrido para resúmenes y sugerencias.
 
-### 1. Prerrequisitos
-- Python 3.11 o superior.
+📂 Estructura del Proyecto
+main.py: (Futuro) Archivo principal de la API FastAPI.
 
-### 2. Instalación
+llm_services.py: Contiene toda la lógica para interactuar con la API de Mistral.
 
-1.  **Clona el repositorio:**
-    ```bash
-    git clone [https://tu-repositorio.git](https://tu-repositorio.git)
-    cd LLMs_Spotify_Learn
-    ```
+database.py: Gestiona todas las interacciones con la base de datos SQLite.
 
-2.  **(Recomendado) Crea y activa un entorno virtual:**
-    ```bash
-    python -m venv venv
-    # En Windows
-    venv\Scripts\activate
-    # En macOS/Linux
-    source venv/bin/activate
-    ```
+auth.py: (Futuro) Manejará toda la seguridad y autenticación.
 
-3.  **Instala las dependencias:**
-    ```bash
-    pip install "mistralai" "passlib[bcrypt]" "python-jose[cryptography]" "fastapi[all]" "python-dotenv" "uvicorn"
-    ```
+create_db.py: Script para inicializar la base de datos.
 
-4.  **Configura tus variables de entorno:**
-    Crea un archivo llamado `.env` en la raíz del proyecto y añade tus claves.
-    ```env
-    # .env
-    MISTRAL_API_KEY="tu_api_key_de_mistral_aqui"
-    SECRET_KEY="tu_clave_secreta_para_jwt_muy_larga_y_segura"
-    ```
+seed_db.py: Script para poblar la base de conocimiento para RAG.
 
-5.  **Inicializa la Base de Datos:**
-    Ejecuta este comando una sola vez para crear el archivo `learning_app.db` y sus tablas.
-    ```bash
-    python create_db.py
-    ```
+full_simulation.py: Script para probar la lógica actual sin necesidad de una API web.
 
-6.  **(Opcional) Puebla la Base de Conocimiento:**
-    Para probar la funcionalidad RAG, ejecuta este script.
-    ```bash
-    python seed_db.py
-    ```
+.env: Archivo para guardar claves secretas.
 
-### 3. Ejecutar el Servidor
+🚀 Configuración y Prueba (Simulación Local)
+Sigue estos pasos para configurar y probar la lógica principal del proyecto en tu entorno local.
 
-Levanta el servidor de FastAPI con Uvicorn.
+1. Prerrequisitos
+Python 3.11 o superior.
 
-```bash
-uvicorn main:app --reload
+2. Instalación
+Clona el repositorio:
 
-El servidor estará disponible en http://127.0.0.1:8000. Puedes acceder a la documentación interactiva de la API en http://127.0.0.1:8000/docs.
+git clone [https://tu-repositorio.git](https://tu-repositorio.git)
+cd LLMs_Spotify_Learn
 
-🔗 Endpoints de la API
-Autenticación
-POST /register
+(Recomendado) Crea y activa un entorno virtual:
 
-Registra un nuevo usuario.
+python -m venv venv
+# En Windows
+venv\Scripts\activate
+# En macOS/Linux
+source venv/bin/activate
 
-Body (form-data): username, password.
+Instala las dependencias:
 
-Respuesta: Mensaje de confirmación.
+pip install "mistralai" "passlib[bcrypt]" "python-jose[cryptography]" "fastapi[all]" "python-dotenv" "uvicorn"
 
-POST /token
+Configura tus variables de entorno:
+Crea un archivo llamado .env en la raíz del proyecto y añade tus claves.
 
-Inicia sesión y devuelve un token de acceso.
+# .env
+MISTRAL_API_KEY="tu_api_key_de_mistral_aqui"
+SECRET_KEY="tu_clave_secreta_para_jwt_muy_larga_y_segura"
 
-Body (form-data): username, password.
+Inicializa la Base de Datos:
+Ejecuta este comando una sola vez para crear el archivo learning_app.db y sus tablas.
 
-Respuesta: { "access_token": "...", "token_type": "bearer" }.
+python create_db.py
 
-Funcionalidad Principal
-POST /learn/
+(Opcional) Puebla la Base de Conocimiento:
+Para probar la funcionalidad RAG, ejecuta este script.
 
-Genera un resumen de un tema y sugerencias personalizadas.
+python seed_db.py
 
-Endpoint protegido. Requiere autenticación.
+3. Ejecutar la Simulación
+En lugar de levantar un servidor web, ejecuta el script de simulación para ver la lógica en acción directamente en tu terminal.
 
-Header: Authorization: Bearer <tu_token_jwt>
+python full_simulation.py
 
-Parámetro de URL: ?tema=El+Tema+Que+Quieres+Aprender
+El script simulará a un usuario aprendiendo varios temas, mostrando los resúmenes generados, el historial actualizado y las sugerencias personalizadas.
 
-Respuesta:
-
-{
-  "usuario": "nombre_del_usuario",
-  "tema_aprendido": "El Tema Que Quieres Aprender",
-  "resumen": "El resumen generado por el LLM...",
-  "sugerencias_para_ti": [
-    "Sugerencia 1",
-    "Sugerencia 2",
-    "Sugerencia 3",
-    "Sugerencia 4",
-    "Sugerencia 5"
-  ]
-}
+📈 Próximos Pasos
+El siguiente gran objetivo es conectar toda esta lógica a una API web para que pueda ser consumida por un frontend.
