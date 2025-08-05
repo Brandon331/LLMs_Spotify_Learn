@@ -87,7 +87,41 @@ Levanta el servidor de FastAPI con Uvicorn.
 
 ```bash
 uvicorn main:app --reload
-El servidor estará disponible en http://127.0.0.1:8000. Puedes acceder a la documentación interactiva de la API en http://127.0.0.1:8000/docs.🔗 Endpoints de la APIAutenticaciónPOST /registerRegistra un nuevo usuario.Body (form-data): username, password.Respuesta: Mensaje de confirmación.POST /tokenInicia sesión y devuelve un token de acceso.Body (form-data): username, password.Respuesta: { "access_token": "...", "token_type": "bearer" }.Funcionalidad PrincipalPOST /learn/Genera un resumen de un tema y sugerencias personalizadas.Endpoint protegido. Requiere autenticación.Header: Authorization: Bearer <tu_token_jwt>Parámetro de URL: ?tema=El+Tema+Que+Quieres+AprenderRespuesta:{
+
+El servidor estará disponible en http://127.0.0.1:8000. Puedes acceder a la documentación interactiva de la API en http://127.0.0.1:8000/docs.
+
+🔗 Endpoints de la API
+Autenticación
+POST /register
+
+Registra un nuevo usuario.
+
+Body (form-data): username, password.
+
+Respuesta: Mensaje de confirmación.
+
+POST /token
+
+Inicia sesión y devuelve un token de acceso.
+
+Body (form-data): username, password.
+
+Respuesta: { "access_token": "...", "token_type": "bearer" }.
+
+Funcionalidad Principal
+POST /learn/
+
+Genera un resumen de un tema y sugerencias personalizadas.
+
+Endpoint protegido. Requiere autenticación.
+
+Header: Authorization: Bearer <tu_token_jwt>
+
+Parámetro de URL: ?tema=El+Tema+Que+Quieres+Aprender
+
+Respuesta:
+
+{
   "usuario": "nombre_del_usuario",
   "tema_aprendido": "El Tema Que Quieres Aprender",
   "resumen": "El resumen generado por el LLM...",
