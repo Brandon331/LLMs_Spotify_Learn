@@ -1,4 +1,4 @@
-# 🎧 Spotify for Learning - Generador de Snippets con IA 🤖
+# 🎧 LearnWave: Tu "Spotify for Learning" Personalizado con IA 🤖
 
 Este proyecto contiene la lógica de backend para una aplicación de aprendizaje personalizado. El sistema utiliza un Modelo de Lenguaje Grande (LLM) y una arquitectura de Generación Aumentada por Recuperación (RAG) para generar resúmenes educativos y sugerir nuevos temas basados en el historial del usuario.
 
