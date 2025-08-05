@@ -51,7 +51,7 @@ Python 3.11 o superior.
 2. Instalación
 Clona el repositorio:
 
-git clone [https://tu-repositorio.git](https://tu-repositorio.git)
+git clone https://tu-repositorio.git
 cd LLMs_Spotify_Learn
 
 (Recomendado) Crea y activa un entorno virtual:
@@ -92,3 +92,11 @@ El script simulará a un usuario aprendiendo varios temas, mostrando los resúme
 
 📈 Próximos Pasos
 El siguiente gran objetivo es conectar toda esta lógica a una API web para que pueda ser consumida por un frontend.
+
+[ ] Integrar con FastAPI: Mover la lógica de full_simulation.py a los endpoints en main.py.
+
+[ ] Implementar Autenticación: Activar los endpoints /register y /token usando la lógica de auth.py.
+
+[ ] Proteger Endpoints: Asegurar el endpoint /learn/ para que solo usuarios autenticados puedan acceder.
+
+[ ] Conectar con Frontend: Permitir que una aplicación web interactúe con la API.
