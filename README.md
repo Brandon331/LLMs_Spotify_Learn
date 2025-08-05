@@ -1,102 +1,90 @@
-🎧 Spotify for Learning - Generador de Snippets con IA 🤖
+# 🎧 Spotify for Learning - Generador de Snippets con IA 🤖
+
 Este proyecto es el backend de una aplicación diseñada para transformar la manera en que aprendemos sobre la marcha. La API genera resúmenes educativos cortos y personalizados, y sugiere nuevos temas basados en los intereses del usuario, utilizando un potente modelo de lenguaje (LLM) y una arquitectura de Generación Aumentada por Recuperación (RAG).
 
-🌟 Estado Actual del Proyecto
-La lógica principal del backend está completa y funcional. Esto incluye:
+---
 
-Conexión a la base de datos SQLite.
+## 🏛️ Arquitectura del Backend
 
-Generación de resúmenes y sugerencias con Mistral y RAG.
+El backend está construido con **FastAPI** y sigue una arquitectura modular para separar responsabilidades, garantizando que el código sea limpio, mantenible y escalable.
 
-Gestión de historial de usuarios.
+-   **🚀 API Framework**: **FastAPI** para crear endpoints rápidos y eficientes.
+-   **🗃️ Base de Datos**: **SQLite** para almacenar información de usuarios, historial de aprendizaje y una base de conocimiento interna.
+-   **🧠 Modelo de Lenguaje (LLM)**: **Mistral** para la generación de texto.
+-   **🔐 Autenticación**: **Tokens JWT** para proteger los endpoints y gestionar las sesiones de usuario.
+-   **📚 Generación Aumentada por Recuperación (RAG)**: Se utiliza un enfoque híbrido para resúmenes y sugerencias.
 
-Actualmente, toda esta funcionalidad se puede probar a través de un script de simulación. El siguiente paso es exponer esta lógica a través de una API web con FastAPI.
+---
 
-🏛️ Arquitectura Propuesta
-El backend está construido con una arquitectura modular para separar responsabilidades, garantizando que el código sea limpio, mantenible y escalable.
+## 📂 Estructura del Proyecto
 
-🚀 API Framework (Próximo paso): FastAPI para crear endpoints rápidos y eficientes.
+El proyecto está organizado con la lógica de la aplicación contenida dentro de un paquete `app`.
 
-🗃️ Base de Datos: SQLite para almacenar información de usuarios, historial de aprendizaje y una base de conocimiento interna.
+-   `main.py`: El punto de entrada principal de la API. Define los endpoints y orquesta las llamadas a los servicios de la aplicación.
+-   `app/`: Paquete que contiene toda la lógica de negocio.
+    -   `llm_services.py`: Contiene toda la lógica para interactuar con la API de Mistral.
+    -   `database.py`: Gestiona todas las interacciones con la base de datos SQLite.
+    -   `auth.py`: Maneja toda la seguridad y autenticación (hashing, JWTs).
+    -   `create_db.py`: Script para inicializar la base de datos.
+    -   `seed_db.py`: Script para poblar la base de conocimiento para RAG.
+-   `learning_app.db`: El archivo de la base de datos SQLite.
+-   `.env`: Archivo para guardar claves secretas (no se sube al repositorio).
 
-🧠 Modelo de Lenguaje (LLM): Mistral para la generación de texto.
+---
 
-🔐 Autenticación (Próximo paso): Tokens JWT para proteger los endpoints.
+## 🚀 Configuración y Puesta en Marcha
 
-📚 Generación Aumentada por Recuperación (RAG): Se utiliza un enfoque híbrido para resúmenes y sugerencias.
+Sigue estos pasos para configurar y ejecutar el backend en tu entorno local.
 
-📂 Estructura del Proyecto
-main.py: (Futuro) Archivo principal de la API FastAPI.
+### 1. Prerrequisitos
 
-llm_services.py: Contiene toda la lógica para interactuar con la API de Mistral.
+-   Python 3.11 o superior.
 
-database.py: Gestiona todas las interacciones con la base de datos SQLite.
+### 2. Instalación
 
-auth.py: (Futuro) Manejará toda la seguridad y autenticación.
+1.  **Clona el repositorio:**
+    ```bash
+    git clone [https://tu-repositorio.git](https://tu-repositorio.git)
+    cd tu-proyecto
+    ```
 
-create_db.py: Script para inicializar la base de datos.
+2.  **(Recomendado) Crea y activa un entorno virtual:**
+    ```bash
+    python -m venv venv
+    # En Windows
+    venv\Scripts\activate
+    # En macOS/Linux
+    source venv/bin/activate
+    ```
 
-seed_db.py: Script para poblar la base de conocimiento para RAG.
+3.  **Instala las dependencias:**
+    ```bash
+    pip install "mistralai" "passlib[bcrypt]" "python-jose[cryptography]" "fastapi[all]" "python-dotenv" "uvicorn"
+    ```
 
-full_simulation.py: Script para probar la lógica actual sin necesidad de una API web.
+4.  **Configura tus variables de entorno:**
+    Crea un archivo llamado `.env` en la raíz del proyecto y añade tus claves.
+    ```env
+    # .env
+    MISTRAL_API_KEY="tu_api_key_de_mistral_aqui"
+    SECRET_KEY="tu_clave_secreta_para_jwt_muy_larga_y_segura"
+    ```
 
-.env: Archivo para guardar claves secretas.
+5.  **Inicializa la Base de Datos:**
+    Ejecuta este comando una sola vez desde la raíz del proyecto.
+    ```bash
+    python app/create_db.py
+    ```
 
-🚀 Configuración y Prueba (Simulación Local)
-Sigue estos pasos para configurar y probar la lógica principal del proyecto en tu entorno local.
+6.  **(Opcional) Puebla la Base de Conocimiento:**
+    Para probar la funcionalidad RAG, ejecuta este script desde la raíz.
+    ```bash
+    python app/seed_db.py
+    ```
 
-1. Prerrequisitos
-Python 3.11 o superior.
+### 3. Ejecutar el Servidor
 
-2. Instalación
-Clona el repositorio:
+Una vez completada la instalación, levanta el servidor de FastAPI con Uvicorn desde la raíz del proyecto.
 
-git clone https://tu-repositorio.git
-cd LLMs_Spotify_Learn
-
-(Recomendado) Crea y activa un entorno virtual:
-
-python -m venv venv
-# En Windows
-venv\Scripts\activate
-# En macOS/Linux
-source venv/bin/activate
-
-Instala las dependencias:
-
-pip install "mistralai" "passlib[bcrypt]" "python-jose[cryptography]" "fastapi[all]" "python-dotenv" "uvicorn"
-
-Configura tus variables de entorno:
-Crea un archivo llamado .env en la raíz del proyecto y añade tus claves.
-
-# .env
-MISTRAL_API_KEY="tu_api_key_de_mistral_aqui"
-SECRET_KEY="tu_clave_secreta_para_jwt_muy_larga_y_segura"
-
-Inicializa la Base de Datos:
-Ejecuta este comando una sola vez para crear el archivo learning_app.db y sus tablas.
-
-python create_db.py
-
-(Opcional) Puebla la Base de Conocimiento:
-Para probar la funcionalidad RAG, ejecuta este script.
-
-python seed_db.py
-
-3. Ejecutar la Simulación
-En lugar de levantar un servidor web, ejecuta el script de simulación para ver la lógica en acción directamente en tu terminal.
-
-python full_simulation.py
-
-El script simulará a un usuario aprendiendo varios temas, mostrando los resúmenes generados, el historial actualizado y las sugerencias personalizadas.
-
-📈 Próximos Pasos
-El siguiente gran objetivo es conectar toda esta lógica a una API web para que pueda ser consumida por un frontend.
-
-[ ] Integrar con FastAPI: Mover la lógica de full_simulation.py a los endpoints en main.py.
-
-[ ] Implementar Autenticación: Activar los endpoints /register y /token usando la lógica de auth.py.
-
-[ ] Proteger Endpoints: Asegurar el endpoint /learn/ para que solo usuarios autenticados puedan acceder.
-
-[ ] Conectar con Frontend: Permitir que una aplicación web interactúe con la API.
+```bash
+uvicorn main:app --reload
