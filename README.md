@@ -109,12 +109,11 @@ Para probar la funcionalidad actual, primero clona el repositorio y muévete a l
 
 Ahora, ejecuta el script de simulación para ver toda la lógica en acción directamente en tu terminal.
 
-```bash
-python full_simulation.py
+   ```bash
+   python full_simulation.py
+   ---
 
----
-
-## 📈 Próximos Pasos (En la rama `main`)
+### 📈 Próximos Pasos (En la rama `main`) ##
 
 El siguiente gran objetivo es conectar toda la lógica probada a una API web.
 
